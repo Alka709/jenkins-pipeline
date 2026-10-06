@@ -1,49 +1,30 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('H/5 * * * *')
-    }
-
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Alka709/jenkins-pipeline.git'
+            }
+        }
 
         stage('Build') {
             steps {
-                echo 'Building application...'
+                echo 'Starting automated build...'
                 sh 'chmod +x app.sh'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo 'Testing application...'
                 sh './app.sh'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying application...'
-                sh '''
-                    mkdir -p deployed
-                    cp app.sh deployed/
-                    echo "Application deployed successfully!"
-                '''
             }
         }
     }
 
     post {
         success {
-            echo 'POST-BUILD: Deployment completed successfully!'
+            echo 'Build completed successfully!'
         }
 
         failure {
-            echo 'POST-BUILD: Deployment failed!'
-        }
-
-        always {
-            echo 'POST-BUILD: Pipeline execution completed.'
+            echo 'Build failed!'
         }
     }
 }
