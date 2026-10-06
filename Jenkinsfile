@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+
     stages {
 
         stage('Build') {
@@ -20,8 +24,26 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying application...'
-                echo 'Application deployed successfully!'
+                sh '''
+                    mkdir -p deployed
+                    cp app.sh deployed/
+                    echo "Application deployed successfully!"
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'POST-BUILD: Deployment completed successfully!'
+        }
+
+        failure {
+            echo 'POST-BUILD: Deployment failed!'
+        }
+
+        always {
+            echo 'POST-BUILD: Pipeline execution completed.'
         }
     }
 }
